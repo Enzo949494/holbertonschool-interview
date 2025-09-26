@@ -5,59 +5,55 @@ Prints statistics every 10 lines and/or on keyboard interruption (CTRL+C).
 """
 
 import sys
-import re
-import signal
-
-# Global variables for signal handler access
-total_size = 0
-status_counts = {200: 0, 301: 0, 400: 0, 401: 0, 403: 0, 404: 0, 405: 0, 500: 0}
-line_count = 0
-
-
-def print_stats():
-    """Print current statistics in the required format"""
-    print("File size: {}".format(total_size))
-    for status in sorted(status_counts.keys()):
-        if status_counts[status] > 0:
-            print("{}: {}".format(status, status_counts[status]))
-
-
-def signal_handler(signum, frame):
-    """Handle CTRL+C interruption gracefully"""
-    print_stats()
-    sys.exit(0)
 
 
 if __name__ == "__main__":
-    signal.signal(signal.SIGINT, signal_handler)
-    
-    # Compile regex pattern for better performance  
-    pattern = re.compile(
-        r'^\S+\s*-\s*\[.*\]\s*"GET\s+/projects/260\s+HTTP/1\.1"\s+(\d+)\s+(\d+)\s*$'
-    )
-    
+    # Initialize status code counters for valid HTTP status codes
+    status_codes = {"200": 0, "301": 0, "400": 0, "401": 0,
+                    "403": 0, "404": 0, "405": 0, "500": 0}
+    line_count = 1
+    total_file_size = 0
+
+    def parse_log_line(line):
+        """Parse log line and extract status code and file size"""
+        try:
+            # Split line into tokens and get last two elements
+            tokens = line.split()
+            status_code = tokens[-2]
+            file_size = tokens[-1]
+
+            # Update status code counter if valid
+            if status_code in status_codes:
+                status_codes[status_code] += 1
+
+            # Return file size as integer
+            return int(file_size)
+        except (IndexError, ValueError):
+            # Return 0 if parsing fails (invalid format)
+            return 0
+
+    def print_statistics():
+        """Print current statistics in required format"""
+        print("File size: {}".format(total_file_size))
+        # Print status codes in ascending order, only if count > 0
+        for code in sorted(status_codes.keys()):
+            if status_codes[code] > 0:
+                print("{}: {}".format(code, status_codes[code]))
+
     try:
+        # Process each line from stdin
         for line in sys.stdin:
-            line = line.strip()
-            match = pattern.match(line)
-            
-            if match:
-                status_code = int(match.group(1))
-                file_size = int(match.group(2))
-                
-                total_size += file_size
-                
-                if status_code in status_counts:
-                    status_counts[status_code] += 1
-                
-                line_count += 1
-                
-                if line_count % 10 == 0:
-                    print_stats()
-        
-        # Always print final stats if not already printed at line 10, 20, etc.
-        if line_count == 0 or line_count % 10 != 0:
-            print_stats()
-    
+            total_file_size += parse_log_line(line)
+
+            # Print stats every 10 lines
+            if line_count % 10 == 0:
+                print_statistics()
+
+            line_count += 1
     except KeyboardInterrupt:
-        print_stats()
+        # Print stats on CTRL+C and preserve traceback
+        print_statistics()
+        raise
+
+    # Print final statistics
+    print_statistics()
