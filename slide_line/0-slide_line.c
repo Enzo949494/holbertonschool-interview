@@ -55,7 +55,7 @@ static void slide_left(int *line, size_t size)
  */
 static void slide_right(int *line, size_t size)
 {
-	size_t i, j, k;
+	size_t i, j, write_pos;
 
 	/* Slide all non-zero elements to the right */
 	for (i = size - 1, j = size - 1; i < size; i--)
@@ -92,8 +92,9 @@ static void slide_right(int *line, size_t size)
 	}
 
 	/* Fill remaining positions with zeros */
-	for (k = 0; k <= j && k < size; k++)
-		line[k] = 0;
+	write_pos = (j >= size) ? 0 : j + 1;
+	for (i = 0; i < write_pos; i++)
+		line[i] = 0;
 }
 
 /**
