@@ -44,32 +44,25 @@ int advanced_binary_helper(int *array, size_t left, size_t right, int value)
 
 	if (array[mid] == value)
 	{
-		/*
-		 * Si au début du tableau ou que la case précédente est différente,
-		 * alors mid est bien la première occurrence dans ce segment.
-		 */
+		/* Vérifier si c'est la première occurrence dans ce segment */
 		if (mid == left || array[mid - 1] != value)
 			return ((int)mid);
 
-		/*
-		 * Sinon, il y a encore la même valeur à gauche,
-		 * on continue donc à chercher dans la moitié gauche.
-		 */
+		/* Sinon, il y a encore value à gauche : on garde mid dans la fenêtre */
 		return (advanced_binary_helper(array, left, mid, value));
-		/*
-		 * Note : on met mid (et pas mid - 1) pour garder la même découpe
-		 * que la correction Holberton et obtenir les bons affichages.
-		 */
 	}
 	else if (array[mid] < value)
 	{
-		/* Chercher dans la moitié droite */
+		/* Chercher dans la moitié droite (mid exclu, car trop petit) */
 		return (advanced_binary_helper(array, mid + 1, right, value));
 	}
-	else
+	else /* array[mid] > value */
 	{
-		/* Chercher dans la moitié gauche */
-		return (advanced_binary_helper(array, left, mid - 1, value));
+		/*
+		 * Chercher dans moitié gauche en gardant mid (trop grand) dans la fenêtre
+		 * pour obtenir des affichages comme "11, 21, 31, 33" puis "31, 33".
+		 */
+		return (advanced_binary_helper(array, left, mid, value));
 	}
 }
 
