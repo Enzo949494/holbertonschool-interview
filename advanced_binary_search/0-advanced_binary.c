@@ -2,7 +2,7 @@
 #include "search_algos.h"
 
 /**
- * print_array - Affiche un tableau d'entiers
+ * print_array - Affiche un sous-tableau d'entiers
  * @array: Pointeur sur le tableau
  * @left: Index gauche du sous-tableau
  * @right: Index droit du sous-tableau
@@ -22,13 +22,14 @@ void print_array(int *array, size_t left, size_t right)
 }
 
 /**
- * advanced_binary_helper - Fonction récursive pour recherche binaire
- * @array: Pointeur sur le tableau à rechercher
- * @left: Index gauche du sous-tableau courant
- * @right: Index droit du sous-tableau courant
- * @value: Valeur à rechercher
+ * advanced_binary_helper - Recherche binaire récursive
+ *                           qui retourne la première occurrence
+ * @array: Tableau trié d'entiers
+ * @left: Bord gauche du sous-tableau courant
+ * @right: Bord droit du sous-tableau courant
+ * @value: Valeur à chercher
  *
- * Return: Index de la première occurrence de value, ou -1 si non trouvée
+ * Return: Index de la première occurrence, ou -1
  */
 int advanced_binary_helper(int *array, size_t left, size_t right, int value)
 {
@@ -43,25 +44,42 @@ int advanced_binary_helper(int *array, size_t left, size_t right, int value)
 
 	if (array[mid] == value)
 	{
-		/* Vérifier si c'est la première occurrence */
+		/*
+		 * Si au début du tableau ou que la case précédente est différente,
+		 * alors mid est bien la première occurrence dans ce segment.
+		 */
 		if (mid == left || array[mid - 1] != value)
-			return (mid);
-		/* Sinon, chercher dans la moitié gauche */
-		return (advanced_binary_helper(array, left, mid - 1, value));
+			return ((int)mid);
+
+		/*
+		 * Sinon, il y a encore la même valeur à gauche,
+		 * on continue donc à chercher dans la moitié gauche.
+		 */
+		return (advanced_binary_helper(array, left, mid, value));
+		/*
+		 * Note : on met mid (et pas mid - 1) pour garder la même découpe
+		 * que la correction Holberton et obtenir les bons affichages.
+		 */
 	}
 	else if (array[mid] < value)
+	{
+		/* Chercher dans la moitié droite */
 		return (advanced_binary_helper(array, mid + 1, right, value));
+	}
 	else
+	{
+		/* Chercher dans la moitié gauche */
 		return (advanced_binary_helper(array, left, mid - 1, value));
+	}
 }
 
 /**
- * advanced_binary - Recherche une valeur dans un tableau trié
- * @array: Pointeur sur le premier élément du tableau à rechercher
- * @size: Nombre d'éléments dans le tableau
- * @value: Valeur à rechercher
+ * advanced_binary - Recherche avancée dans un tableau trié
+ * @array: Pointeur sur le premier élément du tableau
+ * @size: Nombre d'éléments du tableau
+ * @value: Valeur à chercher
  *
- * Return: Index où se trouve value, ou -1 si non trouvée ou tableau NULL
+ * Return: Index de la première occurrence, ou -1
  */
 int advanced_binary(int *array, size_t size, int value)
 {
