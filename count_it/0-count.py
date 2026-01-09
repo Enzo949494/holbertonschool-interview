@@ -19,7 +19,7 @@ def count_words(subreddit, word_list):
         word_lower = word.lower()
         word_weight[word_lower] = word_weight.get(word_lower, 0) + 1
 
-    # Dictionary to store raw counts (how many times each word appears in titles)
+    # Dictionary to store raw counts (how many time each word appear in titles)
     raw_count = {}
 
     # Helper function to recursively fetch and process hot posts
@@ -44,7 +44,7 @@ def count_words(subreddit, word_list):
             # Process each post title
             for post in posts:
                 title = post["data"]["title"].lower()
-                # Split title into words (only alphanumeric, ignore punctuation)
+                # Split title into word (only alphanumeric, ignore punctuation)
                 words_in_title = []
                 current_word = ""
                 for char in title:
